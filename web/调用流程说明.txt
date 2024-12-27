@@ -1,0 +1,48 @@
+调用流程概述：
+前置配置：
+在tomcat的server.xml文件中配置
+Connector port="80"，
+Context path="/" docBase="/Users/caolijun/j2ee/web" debug="0" reloadable="false"
+
+
+1、login.html
+首先访问浏览器打开http://127.0.0.1/login.html
+打开一个静态的html页面，在这个页面中可以通过form，以post的形式提交数据
+
+2、/login路径
+在上一步的login.html中，用form，把账号和密码，提交到/login这个路径，并且附带method="post"
+
+3、找到对应的Servlet
+tomcat接受到一个新的请求：http://127.0.0.1/login
+其路径是/login，接着就到配置文件web.xml进行匹配，发现/login，对应的Servlet类是 LoginServlet。
+接下来的工作，就会基于这个LoginServlet进行。
+
+4、实例化Servlet对象
+Tomcat 定位到了LoginServlet后，发现并没有LoginServlet的实例存在，于是就调用LoginServlet的public无参的构造方法LoginServlet()实例化一个LoginServlet对象以备后续使用。
+
+5、调用doGet或者doPost
+Tomcat从上一步拿到了LoginServlet的实例之后，根据页面login.html提交信息的时候带的method="post"，去调用对应的doPost方法。
+
+6、request获取参数
+接着流程进入了doPost方法中，
+protected void doPost(HttpServletRequest request, HttpServletResponse response){
+...
+}
+在这个方法中，通过参数request，把页面上传递来的账号和密码信息取出来
+String name = request.getParameter("name");
+String password = request.getParameter("password");
+
+7、response设置响应
+接着，根据账号和密码是否正确(判断是否是admin和123)， 创建不同的html字符串。
+然后把html字符串通过如下方式，设置在了response对象上。
+PrintWriter pw = response.getWriter();
+pw.println(html);
+到这里，Servlet的工作就做完了。
+
+8、tomcat把html传递给浏览器
+在Servlet完成工作之后，tomcat拿到被Servlet修改过的response，根据这个response生成html 字符串，然后再通过HTTP协议，这个html字符串，回发给浏览器，浏览器再根据HTTP协议获取这个html字符串，并渲染在界面上。
+这样在效果上，浏览器就可以看到Servlet中生成的字符串了。
+
+
+
+
